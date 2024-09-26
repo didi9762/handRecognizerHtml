@@ -1,0 +1,75 @@
+<!-- gesture.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture Page</title>
+</head>
+<body>
+<!-- parameter post url post the result,
+parameter onlyFromOptions make the valid result only from list of options - default is: Thumb_Up, Thumb_Down   -->
+<iframe onlyFromOptions="true" postUrl="http://localhost:8080/" style="display: none;" id="gesture" src="handRecognizer.html"></iframe>
+<h4 id="isOpen"></h4>
+<h4 id="gesture_result">result:</h4>
+<button id="start">start pred</button>
+<button id="stop">stop pred</button>
+<button id="set">set options</button>
+
+<script>
+const iframe = document.getElementById('gesture');
+
+addEventListener('click',(ev)=>{
+    if(ev.target.id==='start')startPred()
+    else if(ev.target.id==='stop')stopPred()
+    else if(ev.target.id==='set')setOptions(document.getElementById('gesture'))
+})
+
+const startCam = async (win)=>{
+    let res
+    if (win.contentWindow && win.contentWindow.enableCam) {
+           res = await win.contentWindow.enableCam();//enable cam func - start the predictions
+        } else {
+            console.log('iframe not found rstarting');
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return await startCam(win)
+        }
+    return res
+}
+
+const setOptions =  async (win)=>{
+    if (win.contentWindow && win.contentWindow.setOptions) {
+        stopPred()
+        await win.contentWindow.setOptions(['Open_Palm','Thumb_Down','Victory','Thumb_Up']);
+        } else {
+            console.log('iframe not found rstarting');
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return await setOptions(win)
+        }
+}
+
+const startPred = async ()=>{
+        document.getElementById('gesture_result').innerText = `result:`
+        const camOpen = await startCam(iframe)
+        if(camOpen)document.getElementById('isOpen').innerText = 'hand recognizer working'
+        
+        const handleGestureResult = (e) => {
+            const action = e.detail.action;
+            console.log('gasture result:',action);
+            document.getElementById('gesture_result').innerText = `result: ${action}`
+        };
+        window.addEventListener('gesture_result', handleGestureResult);
+        window.handleGestureResult = handleGestureResult;
+}
+const stopPred = () =>{
+        if (window.handleGestureResult) {
+            window.removeEventListener('gesture_result', window.handleGestureResult);
+            window.handleGestureResult = null;
+        }
+           iframe.contentWindow.stopWebcamStream() //stop web cam func - stop the predictions
+           document.getElementById('isOpen').innerText = ''
+        }
+
+</script>
+</body>
+</html>
