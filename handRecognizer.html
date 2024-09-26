@@ -16,8 +16,13 @@
     let runningMode = "VIDEO";
     let enableWebcamButton
     let webcamRunning = false;
-    const url = window.frameElement.getAttribute('postUrl')
-    const isOnlyFromOptions = window.frameElement.getAttribute('onlyFromOptions') == 'true'
+
+    let url
+    let isOnlyFromOptions
+    window.onload = ()=>{
+    url = window.frameElement.getAttribute('postUrl')
+    isOnlyFromOptions = window.frameElement.getAttribute('onlyFromOptions') == 'true'
+    }
     let options = ['Thumb_Up','Thumb_Down'] // can add options
     const allOptions = ['Thumb_Up','Thumb_Down','Closed_Fist','Open_Palm','Pointing_Up','Victory','ILoveYou']
     
